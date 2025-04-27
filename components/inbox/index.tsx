@@ -2,13 +2,20 @@
 
 import { Inbox } from "@novu/nextjs";
 
-export function Novu() {
+export function Novu({
+  userId,
+  organizationId,
+}: {
+  userId: string;
+  organizationId: string | undefined;
+}) {
+  const subscriberId = [organizationId, userId].filter(Boolean).join(":");
   return (
     <Inbox
       applicationIdentifier={
         process.env.NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER!
       }
-      subscriberId={process.env.NEXT_PUBLIC_NOVU_SUBSCRIBER_ID!}
+      subscriberId={subscriberId}
       tabs={[
         {
           label: "Alle varsler",

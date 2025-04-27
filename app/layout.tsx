@@ -1,7 +1,20 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
+import {
+  ClerkProvider,
+  OrganizationSwitcher,
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
+
 import "./globals.css";
 import { Novu } from "@/components/inbox";
+import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -23,22 +36,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Navbar />
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <Navbar />
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
 
-function Navbar() {
+async function Navbar() {
+  const { userId, orgId } = await auth.protect();
   return (
-    <div className="flex justify-between items-center p-4">
-      <h1>Navbar</h1>
-      <Novu />
-    </div>
+    <header className="flex justify-between items-center p-4">
+      <Link href="/">Home</Link>
+      <div className="flex items-center gap-4">
+        <Novu userId={userId} organizationId={orgId} />
+        <SignedOut>
+          <SignInButton />
+          <SignUpButton />
+        </SignedOut>
+        <SignedIn>
+          <OrganizationSwitcher />
+          <UserButton />
+        </SignedIn>
+      </div>
+    </header>
   );
 }
